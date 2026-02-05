@@ -1,0 +1,34 @@
+@model dotNetBasic.ViewModels.BookDetailsModel;
+
+
+<h2>Book Details</h2>
+
+<hr />
+
+<div>
+    <dl class="row">
+        <dt class="col-sm-3">Title</dt>
+        <dd class="col-sm-9">@Model.Title</dd>
+
+        <dt class="col-sm-3">Author</dt>
+        <dd class="col-sm-9">@Model.Author</dd>
+
+        <dt class="col-sm-3">Genre</dt>
+        <dd class="col-sm-9">@Model.Genre</dd>
+
+        <dt class="col-sm-3">Description</dt>
+        <dd class="col-sm-9">@Model.Description</dd>
+
+        <dt class="col-sm-3">Available</dt>
+        <dd class="col-sm-9">
+            @(Model.Available ? "Yes" : "No")
+        </dd>
+
+        <dt class="col-sm-3">Added On</dt>
+        <dd class="col-sm-9">
+            @Model.AddedOn.ToString("dd MMM yyyy")
+        </dd>
+    </dl>
+</div>
+
+<a asp-action="Index" class="btn btn-secondary">← Back to List</a>

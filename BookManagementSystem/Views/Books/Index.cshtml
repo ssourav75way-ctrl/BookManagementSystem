@@ -1,0 +1,63 @@
+
+@model dotNetBasic.ViewModels.BooksViewModel
+
+<h2 class="mb-4">Book Library</h2>
+
+<div id="highlightedBooks">
+    @await Html.PartialAsync("_HighlightedBooks", Model.HighlightedBooks)
+</div>
+
+<hr />
+
+<form method="get" asp-action="Index" class="row mb-3 align-items-center">
+    <div class="col-md-4">
+        <select name="genre" class="form-select">
+            <option value="">All Genres</option>
+            @foreach (var genre in Model.AllBooks.Select(b => b.Genre).Distinct())
+            {
+                <option value="@genre" selected="@(Model.SelectedGenre == genre ? "selected" : null)">
+                    @genre
+                </option>
+            }
+        </select>
+    </div>
+
+    <div class="col-md-2">
+        <button type="submit" class="btn btn-primary w-100">Filter</button>
+    </div>
+
+    <div class="col-md-6 text-end">
+        <h6>Total Books: <span>@Model.TotalBooks</span></h6>
+    </div>
+</form>
+
+<!-- All Books -->
+<div id="booksContainer">
+    @await Html.PartialAsync("_BooksList", Model.AllBooks)
+</div>
+
+@section Scripts {
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
+    <script>
+$(window).on("load", function () {
+
+    const highlightedIds = new Set();
+
+    
+    $("#highlightedBooks [data-book-id]").each(function () {
+        highlightedIds.add($(this).data("book-id").toString());
+    });
+
+    
+    $("#booksContainer [data-book-id]").each(function () {
+        const bookId = $(this).data("book-id").toString();
+
+        if (highlightedIds.has(bookId)) {
+            $(this).remove();
+        }
+    });
+
+});
+</script>
+}

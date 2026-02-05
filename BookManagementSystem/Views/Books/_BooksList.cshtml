@@ -1,0 +1,30 @@
+@model IEnumerable<dotNetBasic.DTO.BooksDTO>
+
+<div class="row">
+    @foreach (var book in Model)
+    {
+        <div class="col-md-4 mb-4 book-card" data-genre="@book.Genre">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">@book.Title</h5>
+                    <h6 class="card-subtitle mb-2 text-muted">@book.Author</h6>
+                    <p class="card-text">@book.Description</p>
+                    <span class="badge bg-primary">@book.Genre</span>
+
+                    @if (!book.Available)
+                    {
+                        <span class="badge bg-danger ms-2">Not Available</span>
+                    }
+                </div>
+
+                <div class="card-footer bg-transparent">
+                    <a asp-action="Details"
+                       asp-route-id="@book.Id"
+                       class="btn btn-sm btn-outline-primary">
+                        View Details →
+                    </a>
+                </div>
+            </div>
+        </div>
+    }
+</div>  
