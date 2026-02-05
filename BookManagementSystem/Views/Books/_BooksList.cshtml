@@ -11,7 +11,7 @@
                     <p class="card-text">@book.Description</p>
                     <span class="badge bg-primary">@book.Genre</span>
 
-                    @if (!book.Available)
+                    @if (!book.isAvailable)
                     {
                         <span class="badge bg-danger ms-2">Not Available</span>
                     }

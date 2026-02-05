@@ -1,4 +1,3 @@
-
 @model dotNetBasic.ViewModels.BooksViewModel
 
 <h2 class="mb-4">Book Library</h2>
@@ -15,47 +14,191 @@
             <option value="">All Genres</option>
             @foreach (var genre in Model.AllBooks.Select(b => b.Genre).Distinct())
             {
-                <option value="@genre" selected="@(Model.SelectedGenre == genre ? "selected" : null)">
+                <option value="@genre" selected="@(genre == Model.SelectedGenre)">
                     @genre
                 </option>
             }
         </select>
     </div>
-
     <div class="col-md-2">
         <button type="submit" class="btn btn-primary w-100">Filter</button>
     </div>
-
-    <div class="col-md-6 text-end">
+    <div class="col-md-4 text-end">
         <h6>Total Books: <span>@Model.TotalBooks</span></h6>
+    </div>
+    <div class="col-md-2 text-end">
+        <button type="button" class="btn btn-success w-100" data-bs-toggle="modal" data-bs-target="#bookModal">
+            Create Book
+        </button>
     </div>
 </form>
 
-<!-- All Books -->
 <div id="booksContainer">
     @await Html.PartialAsync("_BooksList", Model.AllBooks)
 </div>
 
+
+<div class="modal fade" id="bookModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form id="bookForm">
+                <div class="modal-header">
+                    <h5 class="modal-title">Create Book</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="BookId" name="Id" />
+                    <div class="mb-3">
+                        <label>Title</label>
+                        <input type="text" id="Title" name="Title" class="form-control" required />
+                    </div>
+                    <div class="mb-3">
+                        <label>Author</label>
+                        <input type="text" id="Author" name="Author" class="form-control" required />
+                    </div>
+                    <div class="mb-3">
+                        <label>Genre</label>
+                        <input type="text" id="Genre" name="Genre" class="form-control" required />
+                    </div>
+                    <div class="mb-3">
+                        <label>Description</label>
+                        <textarea id="Description" name="Description" class="form-control"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-success">Save</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 @section Scripts {
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script>
+$(function() {
 
-    <script>
-$(window).on("load", function () {
+    $("#bookForm").submit(function(e) {
+        e.preventDefault();
 
-    const highlightedIds = new Set();
+        const bookData = {
+            Title: $("#Title").val(),
+            Author: $("#Author").val(),
+            Genre: $("#Genre").val(),
+            Description: $("#Description").val()
+        };
 
-    
-    $("#highlightedBooks [data-book-id]").each(function () {
-        highlightedIds.add($(this).data("book-id").toString());
+        $.ajax({
+            type: "POST",
+            url: "/Books/Create",
+            contentType: "application/json",
+            data: JSON.stringify(bookData),
+            success: function(createdBook) {
+                // Close modal
+                $("#bookModal").modal('hide');
+
+                // Clear form
+                $("#bookForm")[0].reset();
+
+                // Add new book to the DOM
+                const newRow = `
+                    <div data-book-id="${createdBook.id}" class="book-item mb-2">
+                        <strong>${createdBook.title}</strong> by ${createdBook.author} (${createdBook.genre})
+                        <p>${createdBook.description}</p>
+                        <button class="btn btn-sm btn-warning edit-book" data-id="${createdBook.id}">Edit</button>
+                        <button class="btn btn-sm btn-danger delete-book" data-id="${createdBook.id}">Delete</button>
+                    </div>
+                `;
+                $("#booksContainer").prepend(newRow);
+
+                // Update total books count
+                const total = parseInt($("h6 span").text()) + 1;
+                $("h6 span").text(total);
+            },
+            error: function(xhr) {
+                alert("Error: " + xhr.responseText);
+            }
+        });
     });
 
-    
-    $("#booksContainer [data-book-id]").each(function () {
-        const bookId = $(this).data("book-id").toString();
+    $(document).on("click", ".delete-book", function() {
+        const id = $(this).data("id");
 
-        if (highlightedIds.has(bookId)) {
-            $(this).remove();
-        }
+        if(!confirm("Are you sure you want to delete this book?")) return;
+
+        $.ajax({
+            type: "DELETE",
+            url: `/Books/Delete/${id}`,
+            success: function() {
+                $(`[data-book-id='${id}']`).remove();
+
+                const total = parseInt($("h6 span").text()) - 1;
+                $("h6 span").text(total);
+            },
+            error: function(xhr) {
+                alert("Delete failed: " + xhr.responseText);
+            }
+        });
+    });
+
+    $(document).on("click", ".edit-book", function() {
+        const id = $(this).data("id");
+
+        $.ajax({
+            type: "GET",
+            url: `/Books/GetById/${id}`,
+            success: function(book) {
+                $("#BookId").val(book.id);
+                $("#Title").val(book.title);
+                $("#Author").val(book.author);
+                $("#Genre").val(book.genre);
+                $("#Description").val(book.description);
+
+                $("#bookModal .modal-title").text("Edit Book");
+                $("#bookModal").modal('show');
+            },
+            error: function(xhr) {
+                alert("Failed to fetch book: " + xhr.responseText);
+            }
+        });
+    });
+
+    $("#bookForm").submit(function(e) {
+        e.preventDefault();
+
+        const id = $("#BookId").val();
+        if (!id) return; // If no id, it is handled by create logic
+
+        const bookData = {
+            Id: parseInt(id),
+            Title: $("#Title").val(),
+            Author: $("#Author").val(),
+            Genre: $("#Genre").val(),
+            Description: $("#Description").val()
+        };
+
+        $.ajax({
+            type: "PUT",
+            url: "/Books/Update",
+            contentType: "application/json",
+            data: JSON.stringify(bookData),
+            success: function(updatedBook) {
+                $("#bookModal").modal('hide');
+                $("#bookForm")[0].reset();
+
+                const container = $(`[data-book-id='${updatedBook.id}']`);
+                container.html(`
+                    <strong>${updatedBook.title}</strong> by ${updatedBook.author} (${updatedBook.genre})
+                    <p>${updatedBook.description}</p>
+                    <button class="btn btn-sm btn-warning edit-book" data-id="${updatedBook.id}">Edit</button>
+                    <button class="btn btn-sm btn-danger delete-book" data-id="${updatedBook.id}">Delete</button>
+                `);
+            },
+            error: function(xhr) {
+                alert("Update failed: " + xhr.responseText);
+            }
+        });
     });
 
 });

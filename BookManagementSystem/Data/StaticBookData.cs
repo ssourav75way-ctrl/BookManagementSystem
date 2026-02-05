@@ -14,7 +14,7 @@ namespace dotNetBasic.Data
                 Description = "A story about a shepherd who travels to find treasure and discovers life lessons.",
                 Author = "Paulo Coelho",
                 Genre = "Fiction",
-                Available = true,
+                isAvailable = true,
                 AddedOn = new DateTime(2026, 2, 3)
             },
             new Book
@@ -24,7 +24,7 @@ namespace dotNetBasic.Data
                 Description = "A handbook of agile software craftsmanship.",
                 Author = "Robert C. Martin",
                 Genre = "Programming",
-                Available = false,
+                isAvailable = false,
                 AddedOn = new DateTime(2022, 8, 15)
             },
             new Book
@@ -34,7 +34,7 @@ namespace dotNetBasic.Data
                 Description = "The first book in the Harry Potter series, introducing the wizarding world.",
                 Author = "J.K. Rowling",
                 Genre = "Fantasy",
-                Available = true,
+                isAvailable = true,
                 AddedOn = new DateTime(2021, 11, 20)
             },
             new Book
@@ -44,7 +44,7 @@ namespace dotNetBasic.Data
                 Description = "An easy & proven way to build good habits and break bad ones.",
                 Author = "James Clear",
                 Genre = "Self-Help",
-                Available = true,
+                isAvailable = true,
                 AddedOn = new DateTime(2023, 3, 5)
             },
             new Book
@@ -54,7 +54,7 @@ namespace dotNetBasic.Data
                 Description = "From journeyman to master — essential software development guide.",
                 Author = "Andrew Hunt & David Thomas",
                 Genre = "Programming",
-                Available = false,
+                isAvailable = false,
                 AddedOn = new DateTime(2020, 5, 18)
             }
         };

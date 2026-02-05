@@ -7,22 +7,23 @@
         <div class="row mb-4">
         @foreach (var book in Model)
     {
-        <div class="col-md-4">
+        <div class="col-md-4" data-book-id="@book.Id">
             <div class="card border-warning shadow-sm mb-3">
-            <div class="card-body">
-            <h6 class="card-title">@book.Title</h6>
-            <p class="text-muted mb-1">@book.Author</p>
+                <div class="card-body">
+                    <h6 class="card-title">@book.Title</h6>
+                    <p class="text-muted mb-1">@book.Author</p>
 
-            <span class="badge bg-warning text-dark">New</span>
+                    <span class="badge bg-warning text-dark">New</span>
 
-            <a asp-action="Details"
-        asp-route-id="@book.Id"
-        class="btn btn-sm btn-outline-dark float-end">
-            View →
-            </a>
+                    <a asp-action="Details"
+                       asp-route-id="@book.Id"
+                       class="btn btn-sm btn-outline-dark float-end">
+                        View →
+                    </a>
+                </div>
             </div>
-            </div>
-            </div>
+        </div>
+
     }
     </div>
 }

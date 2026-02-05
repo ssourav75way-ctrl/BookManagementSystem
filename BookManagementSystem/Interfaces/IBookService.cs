@@ -1,9 +1,18 @@
 using dotNetBasic.DTO;
 using dotNetBasic.Models;
-public interface IBookService
+
+namespace dotNetBasic.Interfaces
 {
-    List<BooksDTO>GetAllBooks();
-    List<BooksDTO>GetBookByGenre(string genre);
-    BooksDTO? GetBookDetails(int id);
-    List<BooksDTO> GetHighlightBooks();
+
+
+    public interface IBookService
+    {
+        Task <List<BooksDTO>> GetAllBooks();
+        Task<List<BooksDTO>> GetBookByGenre(string genre);
+        Task <BooksDTO?> GetBookDetails(int id);
+        Task<List<BooksDTO>> GetHighlightBooks();
+        Task AddBookAsync(Book book);
+        Task<bool> UpdateBookAsync(Book book);
+        Task<bool> DeleteBookAsync(int bookId);
+    }
 }

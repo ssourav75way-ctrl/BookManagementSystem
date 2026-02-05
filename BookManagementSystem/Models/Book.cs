@@ -13,10 +13,16 @@ namespace dotNetBasic.Models
         [Required][MaxLength(200)]
         public string Description { get; set; } = string.Empty;
 
-        [Required] [MaxLength(50)] public string Author { get; set; } = string.Empty;
-        [Required]  [MaxLength(50)] public string Genre { get; set; } = string.Empty;
-        public bool Available { get; set; } = true;
+        [Required] [MaxLength(50)] 
+        public string Author { get; set; } = string.Empty;
+        [Required]  [MaxLength(50)] 
+        public string Genre { get; set; } = string.Empty;
+        public bool isAvailable { get; set; } = true;
         [Required] 
         public DateTime AddedOn { get; set; } = DateTime.UtcNow;
+
+        public string Createdby { get; set; } = string.Empty;
+        public DateTime UpdatedAt { get; set; }=DateTime.UtcNow;
+        public string Updatedby { get; set; } = string.Empty;
     }
 }

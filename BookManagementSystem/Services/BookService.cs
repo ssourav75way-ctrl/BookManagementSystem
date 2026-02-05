@@ -1,50 +1,96 @@
-using dotNetBasic.Data;
 using dotNetBasic.DTO;
+using dotNetBasic.Interfaces;
 using dotNetBasic.Models;
-using dotNetBasic.Models;
-using Microsoft.AspNetCore.Http.HttpResults;
+using dotNetBasic.Repository;
 
-public class BookService : IBookService
+namespace dotNetBasic.Services
 {
-   public static BooksDTO MapToBookDTO(Book book)
-   {
-      return new BooksDTO
-      {
-         Id = book.Id,
-         Author = book.Author,
-         Title = book.Title,
-         Genre = book.Genre,
-         AddedOn = book.AddedOn,
-         Description = book.Description,
+    public class BookService : IBookService
+    {
+        private readonly IBookRepository _bookRepository;
 
-      };
-   }
-   public List<BooksDTO> GetAllBooks()
-   {
-      
-      return BookData.Books.Select(MapToBookDTO).ToList();
-   }
+        public BookService(IBookRepository bookRepository) 
+        {
+            _bookRepository = bookRepository;
+        }
 
-   public List<BooksDTO> GetBookByGenre(string genre)
-   {
-      return BookData.Books.Select(MapToBookDTO)
-         .Where(b => b.Genre.Equals(genre, StringComparison.OrdinalIgnoreCase))
-         .ToList();
-   }
+        // Mapper from Book to BooksDTO
+        private static BooksDTO MapToBookDTO(Book book)
+        {
+            return new BooksDTO
+            {
+                Id = book.Id,
+                Author = book.Author,
+                Title = book.Title,
+                Genre = book.Genre,
+                AddedOn = book.AddedOn,
+                Description = book.Description
+            };
+        }
 
-   public BooksDTO? GetBookDetails(int id)
-   {
-      return BookData.Books.Select(MapToBookDTO).FirstOrDefault(b => b.Id == id);
-   }
+        public async Task<List<BooksDTO>> GetAllBooks()
+        {
+            var books = await _bookRepository.GetAllBooksDB();
+            return books.Select(MapToBookDTO).ToList();
+        }
 
-   public List<BooksDTO> GetHighlightBooks()
-   {
-      return BookData.Books.Select(MapToBookDTO)
-         .Where(b => b.AddedOn >= DateTime.Now.AddDays(-3))
-         .ToList();
+        public async Task<List<BooksDTO>> GetBookByGenre(string genre)
+        {
+            var books = await _bookRepository.GetBooksByGenreDB(genre);
+            return books.Select(MapToBookDTO).ToList();
+        }
 
-   }
+        public async Task<BooksDTO?> GetBookDetails(int id)
+        {
+            var book = await _bookRepository.GetBookDB(id);
+            if (book == null)
+                return null;
+            return MapToBookDTO(book);
+        }
 
-   
-  
+       
+        public async Task<List<BooksDTO>> GetHighlightBooks()
+        {
+            var books = await _bookRepository.GetHighlightBooksDB();
+
+            return books.Select(book => new BooksDTO
+            {
+                Id = book.Id,
+                Title = book.Title,
+                Author = book.Author,
+                Genre = book.Genre,
+                Description = book.Description,
+                AddedOn = book.AddedOn
+            }).ToList();
+        }
+
+        
+        public async Task AddBookAsync(Book book)
+        {
+            if (string.IsNullOrWhiteSpace(book.Title))
+                throw new ArgumentException("Book title cannot be empty");
+
+            await _bookRepository.AddBookDB(book);
+        }
+        
+        public async Task<bool> UpdateBookAsync(Book book)
+        {
+            var existing = await _bookRepository.GetBookDB(book.Id);
+            if (existing == null)
+                throw new KeyNotFoundException("Book not found");
+            await _bookRepository.UpdateBookDb(book);
+            return true;
+        }
+
+     
+        public async Task<bool> DeleteBookAsync(int bookId)
+        {
+            var existing = await _bookRepository.GetBookDB(bookId);
+            if (existing == null)
+                throw new KeyNotFoundException("Book not found");
+
+            await _bookRepository.DeleteBookDB(bookId);
+            return true;
+        }
+    }
 }

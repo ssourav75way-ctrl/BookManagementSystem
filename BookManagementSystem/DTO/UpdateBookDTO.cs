@@ -1,6 +1,6 @@
 namespace dotNetBasic.DTO
 {
-    public class BooksDTO
+    public class UpdateBookDTO
     {
         public int Id { get; set; }
         public string Title { get; set; } = string.Empty;
@@ -9,8 +9,5 @@ namespace dotNetBasic.DTO
 
         public string Author { get; set; } = string.Empty;
         public string Genre { get; set; } = string.Empty;
-        public bool isAvailable { get; set; } = true;
-        public DateTime AddedOn { get; set; } = DateTime.UtcNow;
-
     }
 }
