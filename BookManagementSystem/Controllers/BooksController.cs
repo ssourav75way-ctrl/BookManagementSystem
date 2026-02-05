@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace dotNetBasic.Controllers
 {
-    [Route("Books")]
+    [Route("/")]
     public class BooksController : Controller
     {
         private readonly IBookService _bookService;
@@ -16,22 +16,18 @@ namespace dotNetBasic.Controllers
         }
 
         [HttpGet("")]
-        public async Task<IActionResult> Index(string genre)
+        public async Task<IActionResult> Index()
         {
             try
             {
-                var books = string.IsNullOrEmpty(genre)
-                    ? await _bookService.GetAllBooks()
-                    : await _bookService.GetBookByGenre(genre);
-
+                var books = await _bookService.GetAllBooks();
                 var highlightedBooks = await _bookService.GetHighlightBooks();
 
                 var booksModel = new ViewModels.BooksViewModel
                 {
                     AllBooks = books,
                     HighlightedBooks = highlightedBooks,
-                    TotalBooks = books.Count,
-                    SelectedGenre = genre
+                    TotalBooks = books.Count
                 };
 
                 return View(booksModel);
@@ -40,6 +36,16 @@ namespace dotNetBasic.Controllers
             {
                 return BadRequest(ex.Message);
             }
+        }
+
+        [HttpGet("Details/{id:int}")]
+        public async Task<IActionResult> Details(int id)
+        {
+            var book = await _bookService.GetBookDetails(id);
+            if (book == null)
+                return NotFound();
+
+            return View(book);
         }
 
         [HttpGet("GetById/{id}")]
@@ -62,22 +68,12 @@ namespace dotNetBasic.Controllers
                 Author = dto.Author,
                 Genre = dto.Genre,
                 AddedOn = DateTime.UtcNow,
-                isAvailable = true
+                isAvailable = true,
+                Createdby = "admin"
             };
 
             await _bookService.AddBookAsync(book);
-
-            var createdBookDTO = new DTO.BooksDTO
-            {
-                Id = book.Id,
-                Title = book.Title,
-                Description = book.Description,
-                Author = book.Author,
-                Genre = book.Genre,
-                AddedOn = book.AddedOn
-            };
-
-            return Ok(createdBookDTO);
+            return Ok(new { id = book.Id, title = book.Title });
         }
 
         [HttpPut("Update")]
@@ -85,24 +81,49 @@ namespace dotNetBasic.Controllers
         {
             if (!ModelState.IsValid) return BadRequest("Invalid data");
 
-            var existingBook = await _bookService.GetBookDetails(dto.Id);
-            if (existingBook == null) return NotFound("Book not found");
-
-            var book = new Book
+            try
             {
-                Id =dto.Id,
-                Title = dto.Title,
-                Description = dto.Description,
-                Author = dto.Author,
-                Genre = dto.Genre,
-                AddedOn = existingBook.AddedOn,
-                isAvailable = existingBook.isAvailable
-            };
+                await _bookService.UpdateBookAsync(dto);
+                return Ok(new { success = true });
+            }
+            catch (KeyNotFoundException)
+            {
+                return NotFound("Book not found");
+            }
+        }
 
-            var success = await _bookService.UpdateBookAsync(book);
-            if (!success) return BadRequest("Update failed");
+        [HttpGet("GetByGenre/{genre}")]
+        public async Task<IActionResult> GetByGenre(string genre)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(genre))
+                {
+                    var allBooks = await _bookService.GetAllBooks();
+                    return Json(allBooks);
+                }
 
-            return Ok(book);
+                var books = await _bookService.GetBookByGenre(genre);
+                return Json(books);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = "Error fetching books", error = ex.Message });
+            }
+        }
+
+        [HttpGet("GetGenres")]
+        public async Task<IActionResult> GetGenres()
+        {
+            try
+            {
+                var genres = await _bookService.GetAllGenres();
+                return Json(genres);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = "Error fetching genres", error = ex.Message });
+            }
         }
 
         [HttpDelete("Delete/{id}")]

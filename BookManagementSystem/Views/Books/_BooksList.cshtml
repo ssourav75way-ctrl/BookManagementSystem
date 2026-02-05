@@ -1,30 +1,36 @@
 @model IEnumerable<dotNetBasic.DTO.BooksDTO>
 
-<div class="row">
-    @foreach (var book in Model)
-    {
-        <div class="col-md-4 mb-4 book-card" data-genre="@book.Genre">
-            <div class="card h-100 shadow-sm">
-                <div class="card-body">
-                    <h5 class="card-title">@book.Title</h5>
-                    <h6 class="card-subtitle mb-2 text-muted">@book.Author</h6>
-                    <p class="card-text">@book.Description</p>
-                    <span class="badge bg-primary">@book.Genre</span>
+@foreach (var book in Model)
+{
+    <div class="card mb-2 shadow-sm" data-book-id="@book.Id">
+        <div class="card-body">
+            <h6 class="card-title">@book.Title</h6>
+            <p class="mb-1 text-muted">@book.Author</p>
+            <small>@book.Genre</small>
 
-                    @if (!book.isAvailable)
-                    {
-                        <span class="badge bg-danger ms-2">Not Available</span>
-                    }
-                </div>
+            <div class="float-end">
+                <!-- EDIT -->
+                <button class="btn btn-sm btn-outline-primary edit-book"
+                        data-id="@book.Id"
+                        title="Edit">
+                    ✏
+                </button>
 
-                <div class="card-footer bg-transparent">
-                    <a asp-action="Details"
-                       asp-route-id="@book.Id"
-                       class="btn btn-sm btn-outline-primary">
-                        View Details →
-                    </a>
-                </div>
+                <!-- DELETE -->
+                <button class="btn btn-sm btn-outline-danger delete-book"
+                        data-id="@book.Id"
+                        title="Delete">
+                    🗑️
+                </button>
+
+                <!-- DETAILS -->
+                <a asp-action="Details"
+                   asp-route-id="@book.Id"
+                   class="btn btn-sm btn-outline-dark"
+                   title="View">
+                    View
+                </a>
             </div>
         </div>
-    }
-</div>  
+    </div>
+}

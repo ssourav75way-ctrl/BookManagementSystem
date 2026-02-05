@@ -11,8 +11,9 @@ namespace dotNetBasic.Interfaces
         Task<List<BooksDTO>> GetBookByGenre(string genre);
         Task <BooksDTO?> GetBookDetails(int id);
         Task<List<BooksDTO>> GetHighlightBooks();
+        Task<List<string>> GetAllGenres();
         Task AddBookAsync(Book book);
-        Task<bool> UpdateBookAsync(Book book);
+        Task<Book?> UpdateBookAsync(UpdateBookDTO dto);
         Task<bool> DeleteBookAsync(int bookId);
     }
 }

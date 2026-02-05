@@ -14,7 +14,6 @@ namespace dotNetBasic.Services
             _bookRepository = bookRepository;
         }
 
-        // Mapper from Book to BooksDTO
         private static BooksDTO MapToBookDTO(Book book)
         {
             return new BooksDTO
@@ -64,6 +63,17 @@ namespace dotNetBasic.Services
             }).ToList();
         }
 
+        public async Task<List<string>> GetAllGenres()
+        {
+            var books = await _bookRepository.GetAllBooksDB();
+            return books
+                .Select(b => b.Genre)
+                .Where(g => !string.IsNullOrEmpty(g))
+                .Distinct()
+                .OrderBy(g => g)
+                .ToList();
+        }
+
         
         public async Task AddBookAsync(Book book)
         {
@@ -73,13 +83,21 @@ namespace dotNetBasic.Services
             await _bookRepository.AddBookDB(book);
         }
         
-        public async Task<bool> UpdateBookAsync(Book book)
+        public async Task<Book?> UpdateBookAsync(UpdateBookDTO dto)
         {
-            var existing = await _bookRepository.GetBookDB(book.Id);
+            var existing = await _bookRepository.GetBookDB(dto.Id);
             if (existing == null)
-                throw new KeyNotFoundException("Book not found");
-            await _bookRepository.UpdateBookDb(book);
-            return true;
+                return null;
+
+            existing.Title = dto.Title;
+            existing.Description = dto.Description;
+            existing.Author = dto.Author;
+            existing.Genre = dto.Genre;
+            existing.UpdatedAt = DateTime.UtcNow;
+            existing.Updatedby = "admin";
+
+            await _bookRepository.UpdateBookDb(existing);
+            return existing;
         }
 
      
