@@ -9,21 +9,20 @@
             <small>@book.Genre</small>
 
             <div class="float-end">
-                <!-- EDIT -->
+              
                 <button class="btn btn-sm btn-outline-primary edit-book"
                         data-id="@book.Id"
                         title="Edit">
                     ✏
                 </button>
 
-                <!-- DELETE -->
+                
                 <button class="btn btn-sm btn-outline-danger delete-book"
                         data-id="@book.Id"
                         title="Delete">
                     🗑️
                 </button>
 
-                <!-- DETAILS -->
                 <a asp-action="Details"
                    asp-route-id="@book.Id"
                    class="btn btn-sm btn-outline-dark"

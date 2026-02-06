@@ -6,10 +6,9 @@ namespace dotNetBasic.Data
     {
         public static void SeedDatabase(AppDbContext context)
         {
-            // Check if books already exist
             if (context.Books.Any())
             {
-                return; // Database already seeded
+                return;
             }
 
             var dummyBooks = new List<Book>
