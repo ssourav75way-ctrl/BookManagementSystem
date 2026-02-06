@@ -25,8 +25,13 @@ var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())
 {
-    var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    Seeder.SeedDatabase(dbContext);
+    var services = scope.ServiceProvider;
+    var context = services.GetRequiredService<AppDbContext>();
+
+    context.Database.Migrate();
+    Console.WriteLine("Calling Seeder...");
+
+    Seeder.SeedDatabase(context);
 }
 
 // Configure the HTTP request pipeline.

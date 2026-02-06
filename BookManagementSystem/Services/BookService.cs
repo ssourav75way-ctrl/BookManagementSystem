@@ -29,19 +29,19 @@ namespace dotNetBasic.Services
 
         public async Task<List<BooksDTO>> GetAllBooks()
         {
-            var books = await _bookRepository.GetAllBooksDB();
+            List<Book> books = await _bookRepository.GetAllBooksDB();
             return books.Select(MapToBookDTO).ToList();
         }
 
         public async Task<List<BooksDTO>> GetBookByGenre(string genre)
         {
-            var books = await _bookRepository.GetBooksByGenreDB(genre);
+            List<Book> books = await _bookRepository.GetBooksByGenreDB(genre);
             return books.Select(MapToBookDTO).ToList();
         }
 
         public async Task<BooksDTO?> GetBookDetails(int id)
         {
-            var book = await _bookRepository.GetBookDB(id);
+            Book book = await _bookRepository.GetBookDB(id);
             if (book == null)
                 return null;
             return MapToBookDTO(book);
@@ -50,7 +50,7 @@ namespace dotNetBasic.Services
        
         public async Task<List<BooksDTO>> GetHighlightBooks()
         {
-            var books = await _bookRepository.GetHighlightBooksDB();
+            List<Book> books = await _bookRepository.GetHighlightBooksDB();
 
             return books.Select(book => new BooksDTO
             {
@@ -65,7 +65,7 @@ namespace dotNetBasic.Services
 
         public async Task<List<string>> GetAllGenres()
         {
-            var books = await _bookRepository.GetAllBooksDB();
+            List<Book> books = await _bookRepository.GetAllBooksDB();
             return books
                 .Select(b => b.Genre)
                 .Where(g => !string.IsNullOrEmpty(g))
@@ -85,7 +85,7 @@ namespace dotNetBasic.Services
         
         public async Task<Book?> UpdateBookAsync(UpdateBookDTO dto)
         {
-            var existing = await _bookRepository.GetBookDB(dto.Id);
+            Book existing = await _bookRepository.GetBookDB(dto.Id);
             if (existing == null)
                 return null;
 
@@ -103,7 +103,7 @@ namespace dotNetBasic.Services
      
         public async Task<bool> DeleteBookAsync(int bookId)
         {
-            var existing = await _bookRepository.GetBookDB(bookId);
+            Book existing = await _bookRepository.GetBookDB(bookId);
             if (existing == null)
                 throw new KeyNotFoundException("Book not found");
 

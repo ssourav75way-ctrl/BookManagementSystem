@@ -2,6 +2,7 @@ using dotNetBasic.Interfaces;
 using dotNetBasic.DTO;
 using dotNetBasic.Models;
 using Microsoft.AspNetCore.Mvc;
+using dotNetBasic.ViewModels;
 
 namespace dotNetBasic.Controllers
 {
@@ -20,10 +21,10 @@ namespace dotNetBasic.Controllers
         {
             try
             {
-                var books = await _bookService.GetAllBooks();
-                var highlightedBooks = await _bookService.GetHighlightBooks();
+                List <BooksDTO> books = await _bookService.GetAllBooks();
+                List<BooksDTO> highlightedBooks = await _bookService.GetHighlightBooks();
 
-                var booksModel = new ViewModels.BooksViewModel
+                BooksViewModel booksModel = new ViewModels.BooksViewModel
                 {
                     AllBooks = books,
                     HighlightedBooks = highlightedBooks,
@@ -41,9 +42,9 @@ namespace dotNetBasic.Controllers
         [HttpGet("Details/{id:int}")]
         public async Task<IActionResult> Details(int id)
         {
-            var book = await _bookService.GetBookDetails(id);
+            BooksDTO  book = await _bookService.GetBookDetails(id);
             if (book == null)
-                return NotFound();
+                return BadRequest("Book Not Found!");
 
             return View(book);
         }
@@ -51,8 +52,8 @@ namespace dotNetBasic.Controllers
         [HttpGet("GetById/{id}")]
         public async Task<IActionResult> GetById(int id)
         {
-            var book = await _bookService.GetBookDetails(id);
-            if (book == null) return NotFound();
+            BooksDTO book = await _bookService.GetBookDetails(id);
+            if (book == null) return BadRequest("Book not Found!");
             return Json(book);
         }
 
@@ -61,7 +62,7 @@ namespace dotNetBasic.Controllers
         {
             if (!ModelState.IsValid) return BadRequest("Invalid data");
 
-            var book = new Book
+            Book book = new Book
             {
                 Title = dto.Title,
                 Description = dto.Description,
@@ -88,7 +89,7 @@ namespace dotNetBasic.Controllers
             }
             catch (KeyNotFoundException)
             {
-                return NotFound("Book not found");
+                return BadRequest("Book not found");
             }
         }
 
@@ -103,7 +104,7 @@ namespace dotNetBasic.Controllers
                     return Json(allBooks);
                 }
 
-                var books = await _bookService.GetBookByGenre(genre);
+                List<BooksDTO> books = await _bookService.GetBookByGenre(genre);
                 return Json(books);
             }
             catch (Exception ex)
@@ -117,7 +118,7 @@ namespace dotNetBasic.Controllers
         {
             try
             {
-                var genres = await _bookService.GetAllGenres();
+                List<string> genres = await _bookService.GetAllGenres();
                 return Json(genres);
             }
             catch (Exception ex)
@@ -129,7 +130,7 @@ namespace dotNetBasic.Controllers
         [HttpDelete("Delete/{id}")]
         public async Task<IActionResult> Delete(int id)
         {
-            var success = await _bookService.DeleteBookAsync(id);
+            bool success = await _bookService.DeleteBookAsync(id);
             if (!success) return BadRequest("Delete failed");
             return Ok(id);
         }
@@ -137,7 +138,7 @@ namespace dotNetBasic.Controllers
         [HttpGet("Highlight")]
         public async Task<IActionResult> Highlight()
         {
-            var highlightedBooks = await _bookService.GetHighlightBooks();
+            List<BooksDTO> highlightedBooks = await _bookService.GetHighlightBooks();
             return Json(highlightedBooks);
         }
     }
